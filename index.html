@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Каталог символов</title>
+  <style>
+    :root{
+      --bg: #0f172a;           /* slate-900 */
+      --panel: #111827cc;      /* gray-900/80 */
+      --text: #d4ebe0;         /* gray-200 */
+      --muted: #b4a3a4;        /* gray-400 */
+      --accent: #22d3ee;       /* cyan-400 */
+      --accent-2: #a78bfa;     /* violet-400 */
+      --card: #111827;         /* gray-900 */
+      --chip: #1f2937;         /* gray-800 */
+      --shadow: rgba(2,6,23,.45);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial;
+      background: radial-gradient(1200px 600px at 20% -10%, rgba(167,139,250,.12), transparent),
+                  radial-gradient(1000px 500px at 110% 10%, rgba(34,211,238,.12), transparent),
+                  linear-gradient(180deg, #0b1024, #0b1024 60%, #0a0f22);
+      color: var(--text);
+    }
+    header{
+      position: sticky; top:0; z-index:10; backdrop-filter: saturate(140%) blur(10px);
+      background: linear-gradient(180deg, rgba(15,23,42,.85), rgba(15,23,42,.35));
+      border-bottom: 1px solid rgba(148,163,184,.12);
+    }
+    .wrap{max-width:1200px;margin:0 auto;padding:18px 16px}
+    .title{
+      display:flex; align-items:center; gap:12px; margin:0 0 12px 0; font-weight:800; letter-spacing:.2px
+    }
+    .title .logo{width:32px;height:32px; display:grid; place-items:center; border-radius:10px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2)); box-shadow: 0 10px 30px var(--shadow)}
+    .title h1{font-size:clamp(18px,2.6vw,22px); margin:0}
+
+    .toolbar{display:grid; grid-template-columns: 1.2fr .9fr .8fr .8fr auto; gap:10px}
+    .toolbar .field{position:relative}
+    input, select{
+      width:100%; background: var(--chip); color:var(--text); border:1px solid rgba(148,163,184,.18);
+      border-radius:14px; padding:12px 14px; outline:none; font-size:14px; transition:.15s border-color
+    }
+    input:focus, select:focus{border-color: var(--accent)}
+    .btn{
+      appearance:none; border:none; background: linear-gradient(135deg, rgba(34,211,238,.18), rgba(167,139,250,.18));
+      color:var(--text); padding:12px 14px; border-radius:14px; cursor:pointer; font-weight:600;
+      border:1px solid rgba(148,163,184,.18); box-shadow: 0 6px 24px var(--shadow);
+      transition: transform .06s ease;
+    }
+    .btn:active{transform: scale(.98)}
+    .hint{font-size:12px;color:var(--muted); margin-top:6px}
+
+    main{max-width:1200px;margin:24px auto;padding:0 16px}
+    .summary{display:flex; gap:16px; align-items:center; flex-wrap:wrap; margin-bottom:10px; color:var(--muted)}
+
+    .grid{
+      display:grid; grid-template-columns: repeat(auto-fill, minmax(84px,1fr)); gap:12px
+    }
+    .card{
+      background: var(--card); border:1px solid rgba(148,163,184,.14); border-radius:16px; padding:10px; 
+      display:flex; flex-direction:column; align-items:center; gap:8px; box-shadow: 0 10px 24px var(--shadow);
+      transition: transform .08s ease, border-color .15s ease;
+    }
+    .card:hover{transform:translateY(-2px); border-color: rgba(34,211,238,.35)}
+    .glyph{font-size:42px; line-height:1; height:48px; display:grid; place-items:center}
+    .code{font-size:11px; color:var(--muted)}
+    .row{display:flex; gap:6px; flex-wrap:wrap; justify-content:center}
+    .sm-btn{
+      background: var(--chip); border:1px solid rgba(148,163,184,.18); color:var(--text); border-radius:10px; 
+      padding:6px 8px; font-size:12px; cursor:pointer
+    }
+    .sm-btn:hover{border-color: var(--accent)}
+
+    .chips{display:flex; gap:8px; flex-wrap:wrap; margin:12px 0 18px}
+    .chip{background: var(--chip); border:1px solid rgba(148,163,184,.18); padding:6px 10px; border-radius:999px; font-size:12px; cursor:pointer}
+    .chip.active{border-color: var(--accent); box-shadow: 0 0 0 2px rgba(34,211,238,.2) inset}
+
+    .load-more{display:block; margin:22px auto 40px}
+
+    footer{color:var(--muted); text-align:center; padding:28px 16px}
+    a{color:var(--accent)}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <div class="title">
+        <div class="logo">★</div>
+        <h1>Профессиональный каталог символов</h1>
+      </div>
+      <div class="toolbar">
+        <div class="field"><input id="q" placeholder="🔎 Поиск: сердечко, стрелка, U+1F60A, 'arrow'..."/></div>
+        <div class="field">
+          <select id="category"></select>
+        </div>
+        <div class="field">
+          <select id="fontPicker">
+            <option value="system-ui,Segoe UI Emoji,Apple Color Emoji,Noto Color Emoji">Шрифт: системный/эмодзи</option>
+            <option value="Segoe UI Symbol,Symbola">Шрифт: символы</option>
+            <option value="monospace">Шрифт: моно</option>
+          </select>
+        </div>
+        <div class="field">
+          <select id="sizePicker">
+            <option value="256">PNG размер: 256px</option>
+            <option value="512">PNG размер: 512px</option>
+            <option value="1024">PNG размер: 1024px</option>
+          </select>
+        </div>
+        <button class="btn" id="favoritesToggle">☆ Избранное</button>
+      </div>
+      <div class="chips" id="quickChips"></div>
+      <div class="hint">Клик по карточке — копирует символ. Кнопки — «Скачать PNG», «Код U+XXXX», «В избранное».</div>
+    </div>
+  </header>
+
+  <main>
+    <div class="wrap">
+      <div class="summary"><span id="count"></span><span id="activeCat"></span></div>
+      <div class="grid" id="grid"></div>
+      <button class="btn load-more" id="loadMore" style="display:none">Показать ещё</button>
+    </div>
+  </main>
+
+  <footer>
+    Сделано для быстрого поиска и скачивания символов. Совместимо с последними версиями браузеров. 🛰️
+  </footer>
+
+  <script>
+    // ====== Источники символов: диапазоны Юникода по блокам ======
+    // Важно: не отображаем управл. символы (<=0x1F), пропускаем не печатаемые.
+
+    const POPULAR = [
+      "❤","♡","★","☆","✨","🔥","⚡","☀","☁","☂","☃","☔","❄","⚙","⚓","⚑","⚠","☢","☣",
+      "♻","✔","✖","➕","➖","➗","➡","⬅","⬆","⬇","↔","↕","↩","↪","⇦","⇧","⇨","⇩",
+      "✓","✗","✎","✂","✉","☎","☏","🔒","🔓","🔍","🔎","🔔","🔕","📎","📌","📍",
+      "♠","♥","♦","♣","♤","♡","♢","♧","⚀","⚁","⚂","⚃","⚄","⚅",
+      "♪","♫","♬","♭","♯","𝄞",
+      "🙂","😊","😂","🤣","😉","😍","😘","😎","🤔","🤩","😭","😡","😴","🤗","🤝","👍","👎",
+      "🚀","✅","❌","⭕","🔴","🟠","🟡","🟢","🔵","🟣","⚫","⚪"
+    ];
+
+    const BLOCKS = [
+      {name:"Популярные", type:"list", list: POPULAR},
+      {name:"Эмодзи — смайлы", ranges:[[0x1F600,0x1F64F]]},
+      {name:"Эмодзи — объекты", ranges:[[0x1F300,0x1F5FF],[0x1F680,0x1F6FF],[0x1F900,0x1F9FF],[0x1FA70,0x1FAFF]]},
+      {name:"Геометрические фигуры", ranges:[[0x25A0,0x25FF],[0x1F7E0,0x1F7EB]]},
+      {name:"Стрелки", ranges:[[0x2190,0x21FF],[0x27F0,0x27FF],[0x2900,0x297F]]},
+      {name:"Дингбаты", ranges:[[0x2700,0x27BF]]},
+      {name:"Знаки и пиктограммы", ranges:[[0x2600,0x26FF]]},
+      {name:"Игральные карты и шахматы", ranges:[[0x1F0A0,0x1F0FF],[0x2654,0x2667]]},
+      {name:"Музыкальные символы", ranges:[[0x2669,0x267B],[0x1D100,0x1D1FF]]},
+      {name:"Знаки валют", ranges:[[0x20A0,0x20CF]]},
+      {name:"Математические операторы", ranges:[[0x2200,0x22FF],[0x27C0,0x27EF],[0x2980,0x29FF]]},
+      {name:"Псевдографика и блоки", ranges:[[0x2500,0x257F],[0x2580,0x259F]]},
+      {name:"Брайль", ranges:[[0x2800,0x28FF]]},
+    ];
+
+    const QUICK = ["сердце","стрелка","галочка","круг","музыка","шахматы","валюта","эмодзи","рамка","звезда"];
+
+    // Мини-словарь тегов/синонимов для поиска (популярные позиции)
+    const TAGS = new Map([
+      ["❤", ["сердце","love","heart","красное сердечко"]],
+      ["♡", ["сердце","контур","heart"]],
+      ["★", ["звезда","star","рейтинг"]],
+      ["☆", ["звезда","контур","star"]],
+      ["✓", ["галочка","да","check","ok","верно"]],
+      ["✔", ["галочка","жирная","check","ok"]],
+      ["✗", ["крест","нет","x","ошибка"]],
+      ["✉", ["письмо","конверт","email"]],
+      ["☎", ["телефон","звонок"]],
+      ["🔍", ["лупа","поиск","search"]],
+      ["➡", ["стрелка","arrow","вправо"]],
+      ["⬅", ["стрелка","arrow","влево"]],
+      ["⬆", ["стрелка","arrow","вверх"]],
+      ["⬇", ["стрелка","arrow","вниз"]],
+      ["♪", ["нота","музыка","music"]],
+      ["♠", ["пики","карты","spade"]],
+      ["♥", ["червы","карты","heart"]],
+      ["♦", ["бубны","карты","diamond"]],
+      ["♣", ["трефы","карты","club"]],
+      ["🚀", ["ракета","старт","rocket"]],
+    ]);
+
+    const grid = document.getElementById('grid');
+    const q = document.getElementById('q');
+    const category = document.getElementById('category');
+    const sizePicker = document.getElementById('sizePicker');
+    const fontPicker = document.getElementById('fontPicker');
+    const favoritesToggle = document.getElementById('favoritesToggle');
+    const count = document.getElementById('count');
+    const activeCat = document.getElementById('activeCat');
+    const loadMoreBtn = document.getElementById('loadMore');
+    const quickChips = document.getElementById('quickChips');
+
+    // Состояние
+    let allSymbolsCache = new Map(); // key: block name -> array of chars
+    let currentList = [];
+    let offset = 0;
+    const PAGE = 240; // отрисовываем порциями
+    let favorites = new Set(JSON.parse(localStorage.getItem('favorites-v1') || '[]'));
+    let showFavoritesOnly = false;
+
+    // Заполнить категории
+    BLOCKS.forEach((b,i)=>{
+      const opt=document.createElement('option');
+      opt.value=b.name; opt.textContent=b.name; if(i===0) opt.selected=true; category.appendChild(opt)
+    });
+
+    // Быстрые чипы
+    QUICK.forEach(t=>{
+      const chip=document.createElement('button'); chip.className='chip'; chip.textContent=t;
+      chip.addEventListener('click',()=>{ q.value=t; triggerSearch(); document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active')); chip.classList.add('active'); });
+      quickChips.appendChild(chip);
+    });
+
+    // Генерация символов из диапазонов
+    function generateSymbolsFor(block){
+      if(block.type==='list') return block.list.slice();
+      const out=[];
+      for(const [start,end] of block.ranges){
+        for(let cp=start; cp<=end; cp++){
+          // Пропустим не печатаемые
+          if(cp<=0x1F || (cp>=0x7F && cp<=0x9F)) continue;
+          try{ out.push(String.fromCodePoint(cp)); }catch(e){/* пропуск */}
+        }
+      }
+      return out;
+    }
+
+    function getBlockByName(name){ return BLOCKS.find(b=>b.name===name); }
+
+    function ensureCache(name){
+      if(!allSymbolsCache.has(name)){
+        const block=getBlockByName(name);
+        allSymbolsCache.set(name, generateSymbolsFor(block));
+      }
+      return allSymbolsCache.get(name);
+    }
+
+    function codeOf(ch){
+      const cp = ch.codePointAt(0).toString(16).toUpperCase();
+      return 'U+'+cp.padStart(4,'0');
+    }
+
+    function fitsQuery(ch, query){
+      if(!query) return true;
+      const ql = query.toLowerCase().trim();
+      if(ch.includes(query)) return true; // прямой ввод символа
+      // Поиск по коду: U+XXXX, 0xXXXX, просто HEX/DEC
+      const hex = codeOf(ch).toLowerCase();
+      if(hex.includes(ql)) return true;
+      if(/^0x?[0-9a-f]+$/i.test(ql)){
+        const num = parseInt(ql.replace(/^0x/i,''), 16);
+        if(ch.codePointAt(0)===num) return true;
+      }
+      // По тегам
+      const tags = TAGS.get(ch);
+      if(tags && tags.some(t=>t.toLowerCase().includes(ql) || ql.includes(t.toLowerCase()))) return true;
+      // По ключевым словам блока
+      const blockName = category.value.toLowerCase();
+      if(blockName.includes(ql) || ql.includes(blockName)) return true;
+      // Общие эвристики
+      const heur = [
+        ["стрел", ["←","→","↑","↓","↔","↕","⇦","⇧","⇨","⇩","➔","➤"]],
+        ["серд", ["❤","♡","♥","❥"]],
+        ["звез", ["★","☆","✦","✩"]],
+        ["гал", ["✓","✔","✅"]],
+        ["крест", ["✗","✘","❌"]],
+        ["муз", ["♪","♫","♬","♭","♯"]],
+        ["рамк", ["┌","─","┐","│","└","┘"]],
+        ["arrow", ["←","→","↑","↓","↔","↕"]],
+        ["heart", ["❤","♡","♥"]],
+        ["star", ["★","☆"]],
+      ];
+      for(const [key, arr] of heur){ if(ql.includes(key) && arr.some(s=>s===ch)) return true; }
+      return false;
+    }
+
+    function render(reset=false){
+      if(reset){ grid.innerHTML=''; offset=0; }
+      const page = currentList.slice(offset, offset+PAGE);
+      for(const ch of page){ grid.appendChild(cardFor(ch)); }
+      offset += page.length;
+      // UI
+      count.textContent = `Найдено: ${currentList.length.toLocaleString('ru-RU')} символов`;
+      activeCat.textContent = `• Категория: ${category.value}${showFavoritesOnly?' • Избранное':''}`;
+      loadMoreBtn.style.display = offset < currentList.length ? 'block' : 'none';
+    }
+
+    function rebuildList(){
+      const base = showFavoritesOnly ? Array.from(favorites) : ensureCache(category.value);
+      const query = q.value;
+      currentList = base.filter(ch=>fitsQuery(ch, query));
+      render(true);
+    }
+
+    function cardFor(ch){
+      const card = document.createElement('div'); card.className='card'; card.title='Нажмите, чтобы скопировать';
+      const glyph = document.createElement('div'); glyph.className='glyph'; glyph.textContent=ch; glyph.style.fontFamily = fontPicker.value;
+      const code = document.createElement('div'); code.className='code'; code.textContent = codeOf(ch);
+      const row = document.createElement('div'); row.className='row';
+      const b1 = btn('PNG', ()=>downloadPNG(ch));
+      const b2 = btn('Код', ()=>{ navigator.clipboard.writeText(codeOf(ch)); flash(b2); });
+      const isFav = favorites.has(ch);
+      const b3 = btn(isFav?'★':'☆', ()=>{ toggleFav(ch, b3); });
+
+      card.appendChild(glyph); card.appendChild(code); row.appendChild(b1); row.appendChild(b2); row.appendChild(b3); card.appendChild(row);
+      card.addEventListener('click', async (e)=>{
+        if(e.target.tagName==='BUTTON') return; // не перехватывать клики по кнопкам
+        await navigator.clipboard.writeText(ch); flash(card); card.title='Скопировано!'; setTimeout(()=>card.title='Нажмите, чтобы скопировать',800)
+      });
+      return card;
+    }
+
+    function btn(txt, fn){ const b=document.createElement('button'); b.className='sm-btn'; b.textContent=txt; b.addEventListener('click', (e)=>{ e.stopPropagation(); fn(); }); return b; }
+    function flash(el){ el.animate([{boxShadow:'0 0 0 0 rgba(34,211,238,.0)'},{boxShadow:'0 0 0 6px rgba(34,211,238,.25)'}],{duration:280,iterations:1}); }
+
+    function toggleFav(ch, button){
+      if(favorites.has(ch)){ favorites.delete(ch); button.textContent='☆'; }
+      else { favorites.add(ch); button.textContent='★'; }
+      localStorage.setItem('favorites-v1', JSON.stringify(Array.from(favorites)));
+      if(showFavoritesOnly) rebuildList();
+    }
+
+    function downloadPNG(ch){
+      const size = parseInt(sizePicker.value,10) || 512;
+      const cnv = document.createElement('canvas'); cnv.width=cnv.height=size;
+      const ctx = cnv.getContext('2d');
+      ctx.fillStyle = '#0000'; ctx.fillRect(0,0,size,size);
+      // Отрисуем тень и символ
+      const font = Math.floor(size*0.7)+"px "+fontPicker.value;
+      ctx.font = font; ctx.textAlign='center'; ctx.textBaseline='middle';
+      // Лёгкая тень для читаемости
+      ctx.shadowColor = 'rgba(0,0,0,.25)'; ctx.shadowBlur = size*0.03; ctx.shadowOffsetY = size*0.02;
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText(ch, size/2, size/2);
+      const link = document.createElement('a');
+      const filename = `${codeOf(ch).replace('+','')}.png`;
+      link.download = filename; link.href = cnv.toDataURL('image/png'); link.click();
+    }
+
+    function triggerSearch(){
+      document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+      rebuildList();
+    }
+
+    // Слушатели
+    category.addEventListener('change', ()=> rebuildList());
+    q.addEventListener('input', ()=> triggerSearch());
+    sizePicker.addEventListener('change', ()=>{});
+    fontPicker.addEventListener('change', ()=>{ // перерисовать карточки с новым шрифтом
+      document.querySelectorAll('.glyph').forEach(g=> g.style.fontFamily = fontPicker.value);
+    });
+    loadMoreBtn.addEventListener('click', ()=> render(false));
+    favoritesToggle.addEventListener('click', ()=>{
+      showFavoritesOnly = !showFavoritesOnly;
+      favoritesToggle.textContent = showFavoritesOnly ? '★ Избранное' : '☆ Избранное';
+      rebuildList();
+    });
+
+    // Инициализация
+    rebuildList();
+  </script>
+</body>
+</html>
